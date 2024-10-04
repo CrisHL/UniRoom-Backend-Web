@@ -1,0 +1,5 @@
+0000000000000000000000000000000000000000 d851931f0b59a196a47106919664c161b53b755a Armando VL <103782831+iZOXVL@users.noreply.github.com> 1728020563 -0600	branch: Created from Sprint-1
+d851931f0b59a196a47106919664c161b53b755a 6ba1f127c381d1513ba8d435d6621cb808dce470 Armando VL <103782831+iZOXVL@users.noreply.github.com> 1728020965 -0600	commit: Completar el sistema de autenticación: inicio de sesión, recuperación de contraseña y autenticación de dos factores
+6ba1f127c381d1513ba8d435d6621cb808dce470 3c698ab34d9af1ff947a421e6d76e602236c5e95 Armando VL <103782831+iZOXVL@users.noreply.github.com> 1728066324 -0600	commit: UR: Se desarrolló un nuevo endpoint en el cual se realiza la actualización de la información del usuario
+3c698ab34d9af1ff947a421e6d76e602236c5e95 0bee102aaf8de9f54fcaab1b02c5fef8be6d9c58 Armando VL <103782831+iZOXVL@users.noreply.github.com> 1728067706 -0600	commit: UR: Se agregó web.config para el despliegue en Azure
+0bee102aaf8de9f54fcaab1b02c5fef8be6d9c58 0ccbd55d6570090bde7f27eeb52e68d7974c35ac Armando VL <103782831+iZOXVL@users.noreply.github.com> 1728068563 -0600	commit: UR: Ajustes menores en las variables de entorno
