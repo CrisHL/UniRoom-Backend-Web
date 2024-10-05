@@ -37,18 +37,18 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
+  // Comparar la contraseña proporcionada con la almacenada
+  const isMatch = await bcrypt.compare(password, existingUser.password);
+  if (!isMatch) {
+    res.status(400).json({ error: "Contraseña incorrecta" });
+    return;
+  }
+
   // Verificar si el usuario ya ha confirmado su correo
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email);
     await sendVerificationEmail(verificationToken.email, verificationToken.token);
     res.status(200).json({ emailVerify: true, message: "Correo de confirmación enviado" });
-    return;
-  }
-
-  // Comparar la contraseña proporcionada con la almacenada
-  const isMatch = await bcrypt.compare(password, existingUser.password);
-  if (!isMatch) {
-    res.status(400).json({ error: "Contraseña incorrecta" });
     return;
   }
 
