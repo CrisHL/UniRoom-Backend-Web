@@ -87,6 +87,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       }
       await db.twoFactorConfirmation.create({ data: { userId: existingUser.id } });
 
+      // Generar JWT
       const jwtToken = generateJWT(existingUser.id);
       await db.jwtToken.create({
         data: {
