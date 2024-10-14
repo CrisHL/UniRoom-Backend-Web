@@ -68,6 +68,7 @@ exports.login = (0, express_async_handler_1.default)(async (req, res) => {
                 await db_1.db.twoFactorConfirmation.delete({ where: { id: existingConfirmation.id } });
             }
             await db_1.db.twoFactorConfirmation.create({ data: { userId: existingUser.id } });
+            // Generar JWT
             const jwtToken = generateJWT(existingUser.id);
             await db_1.db.jwtToken.create({
                 data: {
