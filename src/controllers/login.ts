@@ -2,6 +2,7 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
+import jwt from "jsonwebtoken";
 import { db } from "../lib/db";
 import { LoginSchema } from "../schemas";
 import { getUserByEmail } from "../data/users";
@@ -18,9 +19,16 @@ import {
   getTwoFactorConfirmationByUserId
 } from "../data/two-factor-confirmation";
 
+const JWT_SECRET = process.env.JWT_SECRET || 'Un1R0Om202A*@*';
+
+// Generar JWT
+const generateJWT = (userId: string) => {
+  const token = jwt.sign({ userId }, JWT_SECRET); // Sin expiración
+  return token;
+};
+
 // Controlador para manejar el inicio de sesión de usuarios
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  // Validar los campos de entrada con el esquema definido
   const validateFields = LoginSchema.safeParse(req.body);
 
   if (!validateFields.success) {
@@ -31,20 +39,25 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password, code } = validateFields.data;
   const existingUser = await getUserByEmail(email);
 
-  // Si el usuario no existe en la base de datos
   if (!existingUser || !existingUser.email || !existingUser.password) {
     res.status(404).json({ error: "Credenciales inexistentes" });
     return;
   }
 
-  // Comparar la contraseña proporcionada con la almacenada
+  // Verificar si el usuario es ARRENDADOR
+  if (existingUser.role === "ARRENDADOR") {
+    res.status(403).json({
+      error: "No puedes iniciar sesión como arrendador. Si deseas rentar una habitación, por favor crea una cuenta como estudiante.",
+    });
+    return;
+  }
+
   const isMatch = await bcrypt.compare(password, existingUser.password);
   if (!isMatch) {
     res.status(400).json({ error: "Contraseña incorrecta" });
     return;
   }
 
-  // Verificar si el usuario ya ha confirmado su correo
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email);
     await sendVerificationEmail(verificationToken.email, verificationToken.token);
@@ -52,7 +65,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  // Comprobar si 2FA está habilitado y gestionar el código de verificación
   if (existingUser.isTwoFactorEnabled) {
     if (code) {
       const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
@@ -62,30 +74,35 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         return;
       }
 
-      // Verificar si el código ha expirado
       if (new Date(twoFactorToken.expires) < new Date()) {
         res.status(400).json({ error: "El código ha expirado" });
         return;
       }
 
-      // Eliminar el token usado para evitar reusos
       await db.twoFactorToken.delete({ where: { id: twoFactorToken.id } });
 
-      // Registrar la confirmación 2FA si es válida
       const existingConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
       if (existingConfirmation) {
         await db.twoFactorConfirmation.delete({ where: { id: existingConfirmation.id } });
       }
       await db.twoFactorConfirmation.create({ data: { userId: existingUser.id } });
 
+      const jwtToken = generateJWT(existingUser.id);
+      await db.jwtToken.create({
+        data: {
+          userId: existingUser.id,
+          token: jwtToken,
+        },
+      });
+
       res.status(200).json({
         success: true,
         message: "Inicio de sesión exitoso con 2FA",
         user: { id: existingUser.id, email: existingUser.email, name: existingUser.name },
+        jwtToken,
       });
       return;
     } else {
-      // Si no hay código, generar y enviar uno nuevo por correo
       const twoFactorToken = await generateTwoFactorToken(existingUser.email);
       await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
 
@@ -94,10 +111,19 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     }
   }
 
-  // Si 2FA no está habilitado, iniciar sesión normalmente
+  // Si 2FA no está habilitado
+  const jwtToken = generateJWT(existingUser.id);
+  await db.jwtToken.create({
+    data: {
+      userId: existingUser.id,
+      token: jwtToken,
+    },
+  });
+
   res.status(200).json({
     success: true,
     message: "Inicio de sesión exitoso",
-    user: { id: existingUser.id, email: existingUser.email, name: existingUser.name },
+    user: { email: existingUser.email, name: existingUser.name, image: existingUser.image },
+    jwtToken,
   });
 });

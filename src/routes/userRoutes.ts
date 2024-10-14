@@ -1,3 +1,4 @@
+import { logout } from './../controllers/logout';
 import { Router } from "express";
 import { register } from "../controllers/register";
 import { login } from "../controllers/login";
@@ -17,5 +18,8 @@ router.post("/reset-password", resetPassword);
 
 //Ruta para actualizar la información del usuario
 router.put("/update", updateUser);
+
+// Ruta para cerrar sesión
+router.post("/logout", logout);
 
 export default router;
