@@ -27,6 +27,25 @@ const generateJWT = (userId: string) => {
   return token;
 };
 
+// Función para eliminar tokens antiguos y crear uno nuevo
+const createJwtToken = async (userId: string) => {
+  // Elimina todos los tokens antiguos para evitar duplicados
+  await db.jwtToken.deleteMany({
+    where: { userId: userId },
+  });
+
+  // Luego crea el nuevo token
+  const newToken = generateJWT(userId);
+  await db.jwtToken.create({
+    data: {
+      userId,
+      token: newToken,
+    },
+  });
+
+  return newToken;
+};
+
 // Controlador para manejar el inicio de sesión de usuarios
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const validateFields = LoginSchema.safeParse(req.body);
@@ -87,14 +106,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       }
       await db.twoFactorConfirmation.create({ data: { userId: existingUser.id } });
 
-      // Generar JWT
-      const jwtToken = generateJWT(existingUser.id);
-      await db.jwtToken.create({
-        data: {
-          userId: existingUser.id,
-          token: jwtToken,
-        },
-      });
+      // Generar nuevo JWT y eliminar los antiguos
+      const jwtToken = await createJwtToken(existingUser.id);
 
       res.status(200).json({
         success: true,
@@ -113,13 +126,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Si 2FA no está habilitado
-  const jwtToken = generateJWT(existingUser.id);
-  await db.jwtToken.create({
-    data: {
-      userId: existingUser.id,
-      token: jwtToken,
-    },
-  });
+  const jwtToken = await createJwtToken(existingUser.id);
 
   res.status(200).json({
     success: true,
@@ -127,4 +134,18 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     user: { email: existingUser.email, name: existingUser.name, image: existingUser.image },
     jwtToken,
   });
+});
+
+// Controlador para manejar el cierre de sesión de usuarios
+export const logout = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  // Validar jwtToken
+  const { token } = req.body;
+
+  // Eliminar el jwt de la base de datos
+  await db.jwtToken.delete({
+    where: { token: token },
+  });
+
+  // Notificar al usuario que la sesión ha sido cerrada
+  res.json({ success: true, message: "Sesión cerrada" });
 });
