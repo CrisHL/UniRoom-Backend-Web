@@ -136,16 +136,3 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-// Controlador para manejar el cierre de sesión de usuarios
-export const logout = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  // Validar jwtToken
-  const { token } = req.body;
-
-  // Eliminar el jwt de la base de datos
-  await db.jwtToken.delete({
-    where: { token: token },
-  });
-
-  // Notificar al usuario que la sesión ha sido cerrada
-  res.json({ success: true, message: "Sesión cerrada" });
-});
