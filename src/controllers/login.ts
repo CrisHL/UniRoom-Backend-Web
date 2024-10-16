@@ -131,8 +131,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "Inicio de sesión exitoso",
-    user: { email: existingUser.email, name: existingUser.name, image: existingUser.image },
-    jwtToken,
+    user: { email: existingUser.email, name: existingUser.name, image: existingUser.image,  token: jwtToken },
   });
 });
 
