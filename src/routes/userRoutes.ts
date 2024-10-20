@@ -4,6 +4,7 @@ import { register } from "../controllers/register";
 import { login } from "../controllers/login";
 import { resetPassword } from "../controllers/resetPassword";
 import { updateUser } from "../controllers/updateUser";
+import { verifyAuth } from '../controllers/verify-auth';
 
 const router = Router();
 
@@ -21,5 +22,8 @@ router.put("/update", updateUser);
 
 // Ruta para cerrar sesión
 router.post("/logout", logout);
+
+//Ruta para verificar la autenticación
+router.post("/verify-auth", verifyAuth);
 
 export default router;
