@@ -10,8 +10,12 @@ export const verifyAuth = asyncHandler(async (req: Request, res: Response): Prom
     return;
   }
 
+  // Buscar el token y también traer la relación con el usuario
   const jwtTokenRecord = await db.jwtToken.findUnique({
     where: { token: token },
+    include: {
+      user: true, // Incluimos los datos del usuario
+    },
   });
 
   if (!jwtTokenRecord) {
@@ -19,5 +23,14 @@ export const verifyAuth = asyncHandler(async (req: Request, res: Response): Prom
     return;
   }
 
-  res.json({ validateToken: true, message: "Sesión verificada correctamente" });
+  const { user } = jwtTokenRecord;
+
+  res.json({
+    validateToken: true,
+    message: "Sesión verificada correctamente",
+    user: {
+      name: user?.name || "Usuario sin nombre",
+      image: user?.image || "Imagen no disponible",
+    }
+  });
 });
