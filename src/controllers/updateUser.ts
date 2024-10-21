@@ -4,11 +4,11 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { db } from "../lib/db";
 import { UpdateSchema } from "../schemas";
-import { getUserByEmail, getUserById } from "../data/users";
+import { getUserByEmail } from "../data/users";
 import { generateVerificationToken } from "../lib/tokens";
 import { sendVerificationEmail } from "../lib/mail";
 
-// Controlador para manejar la actualización de configuraciones de usuario
+
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   // Validar los campos de entrada con el esquema definido
   const validateFields = UpdateSchema.safeParse(req.body);
@@ -19,15 +19,22 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const values = validateFields.data;
-  const userId = req.body.userId; // El id del usuario es recibido desde la app móvil en el cuerpo de la solicitud
+  const { token } = req.body; 
 
-  // Verifica si el usuario existe en la base de datos
-  const dbUser = await getUserById(userId);
+  // Verifica si el token existe en la base de datos
+  const jwtTokenRecord = await db.jwtToken.findUnique({
+    where: { token: token },
+    include: {
+      user: true, 
+    },
+  });
 
-  if (!dbUser) {
-    res.status(403).json({ error: "Acción no permitida" });
+  if (!jwtTokenRecord) {
+    res.status(403).json({ error: "Token inválido o no encontrado" });
     return;
   }
+
+  const dbUser = jwtTokenRecord.user;
 
   // Verifica si el correo ha cambiado y si ya está en uso
   if (values.email && values.email !== dbUser.email) {
@@ -46,16 +53,8 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  // Verifica la contraseña actual antes de permitir un cambio de contraseña
-  if (values.password && values.newPassword && dbUser.password) {
-    const passwordsMatch = await bcrypt.compare(values.password, dbUser.password);
-
-    if (!passwordsMatch) {
-      res.status(400).json({ error: "Contraseña incorrecta!" });
-      return;
-    }
-
-    // Hashea la nueva contraseña
+  // Si hay una nueva contraseña, la hasheamos directamente (ya no verificamos la contraseña actual)
+  if (values.newPassword) {
     const hashedPassword = await bcrypt.hash(values.newPassword, 10);
     values.password = hashedPassword;
     values.newPassword = undefined;
@@ -72,6 +71,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   // Devuelve una respuesta de éxito con el usuario actualizado
   res.status(200).json({ 
     success: true,
-    message:"Cambios realizados correctamente",
-    user: updatedUser });
+    message: "Cambios realizados correctamente",
+    user: updatedUser 
+  });
 });
