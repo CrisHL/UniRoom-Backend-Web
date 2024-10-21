@@ -8,13 +8,12 @@ import { getUserByEmail } from "../data/users";
 import { generateVerificationToken } from "../lib/tokens";
 import { sendVerificationEmail } from "../lib/mail";
 
-
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   // Validar los campos de entrada con el esquema definido
   const validateFields = UpdateSchema.safeParse(req.body);
 
   if (!validateFields.success) {
-    res.status(400).json({ error: "Datos inválidos" });
+    res.status(400).json({ error: "Datos inválidos", details: validateFields.error.errors });
     return;
   }
 
@@ -25,7 +24,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   const jwtTokenRecord = await db.jwtToken.findUnique({
     where: { token: token },
     include: {
-      user: true, 
+      user: true, // Incluimos el usuario asociado al token
     },
   });
 
@@ -53,18 +52,24 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  // Si hay una nueva contraseña, la hasheamos directamente (ya no verificamos la contraseña actual)
+  // Si hay una nueva contraseña, la hasheamos directamente
   if (values.newPassword) {
     const hashedPassword = await bcrypt.hash(values.newPassword, 10);
-    values.password = hashedPassword;
-    values.newPassword = undefined;
+    
+    // Actualizamos la contraseña directamente en la base de datos
+    await db.user.update({
+      where: { id: dbUser.id },
+      data: { password: hashedPassword }, // Guardamos la nueva contraseña hasheada
+    });
+  
+    values.newPassword = undefined; // Eliminamos newPassword para no guardarla directamente
   }
 
   // Actualiza los datos del usuario en la base de datos
   const updatedUser = await db.user.update({
     where: { id: dbUser.id },
     data: {
-      ...values, // Esto incluye name, email y otros campos que pueden ser enviados
+      ...values, // Esto incluye name, email, isTwoFactorEnabled, etc.
     },
   });
 

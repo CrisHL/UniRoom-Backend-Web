@@ -4,31 +4,10 @@ import { UserRole } from "@prisma/client";
 export const UpdateSchema = z.object({
   name: z.optional(z.string()),
   isTwoFactorEnabled: z.optional(z.boolean()),
-  role: z.enum([UserRole.ARRENDADOR, UserRole.ESTUDIANTE]),
+  role: z.optional(z.enum([UserRole.ARRENDADOR, UserRole.ESTUDIANTE])),
   email: z.optional(z.string().email()),
-  password: z.optional(z.string().min(6)),
-  newPassword: z.optional(z.string().min(6)),
-})
-  .refine((data) => {
-    if (data.password && !data.newPassword) {
-      return false;
-    }
-
-    return true;
-  }, {
-    message: "La nueva contraseña es requerida!",
-    path: ["newPassword"]
-  })
-  .refine((data) => {
-    if (data.newPassword && !data.password) {
-      return false;
-    }
-
-    return true;
-  }, {
-    message: "La contraseña es requerida!",
-    path: ["password"]
-  })
+  newPassword: z.optional(z.string().min(6)) 
+});
 
 export const NewPasswordSchema = z.object({
   password: z.string().min(6, {
