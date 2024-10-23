@@ -28,6 +28,7 @@ export const verifyAuth = asyncHandler(async (req: Request, res: Response): Prom
     validateToken: true,
     message: "Sesión verificada correctamente",
     user: {
+      id: user?.id,
       name: user?.name || "Usuario sin nombre",
       image: user?.image || null,
     }

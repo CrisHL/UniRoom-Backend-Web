@@ -24,7 +24,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   const jwtTokenRecord = await db.jwtToken.findUnique({
     where: { token: token },
     include: {
-      user: true, // Incluimos el usuario asociado al token
+      user: true,
     },
   });
 
@@ -59,17 +59,17 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     // Actualizamos la contraseña directamente en la base de datos
     await db.user.update({
       where: { id: dbUser.id },
-      data: { password: hashedPassword }, // Guardamos la nueva contraseña hasheada
+      data: { password: hashedPassword },
     });
   
-    values.newPassword = undefined; // Eliminamos newPassword para no guardarla directamente
+    values.newPassword = undefined;
   }
 
   // Actualiza los datos del usuario en la base de datos
   const updatedUser = await db.user.update({
     where: { id: dbUser.id },
     data: {
-      ...values, // Esto incluye name, email, isTwoFactorEnabled, etc.
+      ...values,
     },
   });
 
