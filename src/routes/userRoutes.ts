@@ -5,6 +5,7 @@ import { login } from "../controllers/login";
 import { resetPassword } from "../controllers/resetPassword";
 import { updateUser } from "../controllers/updateUser";
 import { verifyAuth } from '../controllers/verify-auth';
+import { getUserInfo } from '../controllers/user-info';
 
 const router = Router();
 
@@ -25,5 +26,8 @@ router.post("/logout", logout);
 
 //Ruta para verificar la autenticación
 router.post("/verify-auth", verifyAuth);
+
+//Ruta para verificar la autenticación
+router.post("/user-info", getUserInfo);
 
 export default router;
