@@ -15,6 +15,7 @@ export const getUserInfo = asyncHandler(async (req: Request, res: Response): Pro
     select: {
       id: true,
       name: true,
+      email: true,
     },
   });
 
@@ -29,6 +30,7 @@ export const getUserInfo = asyncHandler(async (req: Request, res: Response): Pro
     user: {
       id: user.id,
       name: user.name || "Usuario sin nombre",
+      email: user.email || "Usuario sin email",
     },
   });
 });
