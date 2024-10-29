@@ -111,9 +111,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
       res.status(200).json({
         success: true,
-        message: "Inicio de sesión exitoso con 2FA",
-        user: { id: existingUser.id, email: existingUser.email, name: existingUser.name },
-        jwtToken,
+        message: "Inicio de sesión exitoso",
+        user: { email: existingUser.email, name: existingUser.name, image: existingUser.image,  token: jwtToken },
       });
       return;
     } else {
