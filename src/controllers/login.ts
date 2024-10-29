@@ -111,8 +111,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
       res.status(200).json({
         success: true,
-        message: "Inicio de sesión exitoso",
-        user: { email: existingUser.email, name: existingUser.name, image: existingUser.image,  token: jwtToken },
+        message: "Inicio de sesión exitoso, con twoFactor activado",
+        user: { email: existingUser.email, name: existingUser.name, image: existingUser.image, twoFactor: true ,  token: jwtToken },
       });
       return;
     } else {
@@ -129,8 +129,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   res.status(200).json({
     success: true,
-    message: "Inicio de sesión exitoso",
-    user: { email: existingUser.email, name: existingUser.name, image: existingUser.image,  token: jwtToken },
+    message: "Inicio de sesión exitoso, con twoFactor desactivado",
+    user: { email: existingUser.email, name: existingUser.name, image: existingUser.image, twoFactor: false,  token: jwtToken },
   });
 });
 
