@@ -7,6 +7,7 @@ export const UpdateSchema = z.object({
   role: z.optional(z.enum([UserRole.ARRENDADOR, UserRole.ESTUDIANTE])),
   email: z.optional(z.string().email()),
   newPassword: z.optional(z.string().min(6)),
+  password: z.optional(z.string().min(6)),
   Image: z.optional(z.string().url()),
 });
 

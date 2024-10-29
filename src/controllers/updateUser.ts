@@ -40,7 +40,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     const existingUser = await getUserByEmail(values.email);
 
     if (existingUser && existingUser.id !== dbUser.id) {
-      res.status(400).json({ error: "El correo ya está en uso!" });
+      res.status(400).json({ error: true, message: "El correo ya está en uso" });
       return;
     }
 
@@ -52,18 +52,27 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  // Si hay una nueva contraseña, la hasheamos directamente
-  if (values.newPassword) {
-    const hashedPassword = await bcrypt.hash(values.newPassword, 10);
-    
-    // Actualizamos la contraseña directamente en la base de datos
-    await db.user.update({
-      where: { id: dbUser.id },
-      data: { password: hashedPassword },
-    });
-  
+  // Verifica la contraseña actual antes de permitir un cambio
+  if (values.password && values.newPassword && dbUser.password) {
+    const passwordsMatch = await bcrypt.compare(
+      values.password,
+      dbUser.password,
+    );
+
+    if (!passwordsMatch) {
+      res.status(204).json({error: true, message: "Contraseña incorrecta"});
+      return;
+    }
+
+    // Hash de la nueva contraseña
+    const hashedPassword = await bcrypt.hash(
+      values.newPassword,
+      10,
+    );
+    values.password = hashedPassword;
     values.newPassword = undefined;
   }
+
 
   // Actualiza los datos del usuario en la base de datos
   const updatedUser = await db.user.update({
