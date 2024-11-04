@@ -147,7 +147,7 @@ export const sendNewLogin = async (email: string) => {
               <tr>
                 <td>
                   <img src="https://i.imgur.com/ruySKLQ.png" alt="Logo" height="130" style="display:block;margin:0 auto;">
-                  <h1 style="text-align:center; font-size:24px;">¡Hola!<br></br> Hemos detectado un nuevo inicio de sesión 🚪🚶</h1>
+                  <h1 style="text-align:center; font-size:24px;">Hemos detectado un nuevo inicio de sesión 🚪🚶</h1>
                   <p style="font-size:14px;">Si no has sido tú, te recomendamos cambiar la contraseña usando el siguiente botón:</p>
                     <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="text-align:center;margin-top:32px;margin-bottom:32px">
                       <tbody>

@@ -2,6 +2,7 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
+import axios from "axios"; // Para realizar la solicitud HTTP a la nueva API
 import { db } from "../lib/db";
 import { UpdateSchema } from "../schemas";
 import { getUserByEmail } from "../data/users";
@@ -52,6 +53,21 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
+  // Verifica si el nombre ha cambiado y actualiza en chats y mensajes
+  if (values.name && values.name !== dbUser.name) {
+    try {
+      // Llama a la API para actualizar el nombre en chats y mensajes
+      await axios.post("https://uniroom-backend-services.onrender.com", {
+        userId: dbUser.id,
+        newName: values.name,
+      });
+    } catch (error) {
+      console.error("Error al actualizar el nombre en chats y mensajes:", error);
+      res.status(500).json({ error: "Error al actualizar el nombre en chats y mensajes" });
+      return;
+    }
+  }
+
   // Verifica la contraseña actual antes de permitir un cambio
   if (values.password && values.newPassword && dbUser.password) {
     const passwordsMatch = await bcrypt.compare(
@@ -60,7 +76,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     );
 
     if (!passwordsMatch) {
-      res.status(204).json({error: true, message: "Contraseña incorrecta"});
+      res.status(204).json({ error: true, message: "Contraseña incorrecta" });
       return;
     }
 
@@ -72,7 +88,6 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     values.password = hashedPassword;
     values.newPassword = undefined;
   }
-
 
   // Actualiza los datos del usuario en la base de datos
   const updatedUser = await db.user.update({

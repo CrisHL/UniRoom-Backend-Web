@@ -125,7 +125,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   // Si 2FA no está habilitado
   const jwtToken = await createJwtToken(existingUser.id);
-  const resEmail = sendNewLogin(existingUser.email);
+  sendNewLogin(existingUser.email);
   res.status(200).json({
     success: true,
     message: "Inicio de sesión exitoso, con twoFactor desactivado",
