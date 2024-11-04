@@ -54,7 +54,7 @@ export const deleteAccount = asyncHandler(async (req: Request, res: Response) =>
       newName,
     });
   } catch (error) {
-    res.status(500).json({ error: "Error al actualizar el nombre en el servicio externo" });
+    res.status(202).json({ error: "Error al actualizar el nombre en el servicio externo" });
     return;
   }
 
