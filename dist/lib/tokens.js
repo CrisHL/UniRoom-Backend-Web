@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateVerificationToken = exports.generatePasswordResetToken = exports.generateTwoFactorToken = void 0;
+exports.generateDeleteToken = exports.generateVerificationToken = exports.generatePasswordResetToken = exports.generateTwoFactorToken = void 0;
 const crypto_1 = __importDefault(require("crypto"));
 const uuid_1 = require("uuid");
 const db_1 = require("../lib/db");
@@ -80,3 +80,26 @@ const generateVerificationToken = async (email) => {
     return verificationToken;
 };
 exports.generateVerificationToken = generateVerificationToken;
+const generateDeleteToken = async (email) => {
+    const token = (0, uuid_1.v4)();
+    const expires = new Date(new Date().getTime() + 3600 * 1000);
+    const existingToken = await (0, verification_token_1.getDeleteTokenByEmail)(email);
+    // Eliminar el token existente si lo hay
+    if (existingToken) {
+        await db_1.db.deleteToken.delete({
+            where: {
+                id: existingToken.id,
+            },
+        });
+    }
+    // Crear y devolver el nuevo token
+    const deleteToken = await db_1.db.deleteToken.create({
+        data: {
+            email,
+            token,
+            expires,
+        }
+    });
+    return deleteToken;
+};
+exports.generateDeleteToken = generateDeleteToken;

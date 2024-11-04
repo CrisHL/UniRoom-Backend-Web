@@ -29,28 +29,11 @@ const client_1 = require("@prisma/client");
 exports.UpdateSchema = z.object({
     name: z.optional(z.string()),
     isTwoFactorEnabled: z.optional(z.boolean()),
-    role: z.enum([client_1.UserRole.ARRENDADOR, client_1.UserRole.ESTUDIANTE]),
+    role: z.optional(z.enum([client_1.UserRole.ARRENDADOR, client_1.UserRole.ESTUDIANTE])),
     email: z.optional(z.string().email()),
-    password: z.optional(z.string().min(6)),
     newPassword: z.optional(z.string().min(6)),
-})
-    .refine((data) => {
-    if (data.password && !data.newPassword) {
-        return false;
-    }
-    return true;
-}, {
-    message: "La nueva contraseña es requerida!",
-    path: ["newPassword"]
-})
-    .refine((data) => {
-    if (data.newPassword && !data.password) {
-        return false;
-    }
-    return true;
-}, {
-    message: "La contraseña es requerida!",
-    path: ["password"]
+    password: z.optional(z.string().min(6)),
+    Image: z.optional(z.string().url()),
 });
 exports.NewPasswordSchema = z.object({
     password: z.string().min(6, {

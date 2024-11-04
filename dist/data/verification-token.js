@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getVerificationTokenByEmail = exports.getVerificationTokenByToken = void 0;
+exports.getDeleteTokenByEmail = exports.getVerificationTokenByEmail = exports.getVerificationTokenByToken = void 0;
 const db_1 = require("../lib/db");
 // Buscar un token de verificación específico por su valor de token
 const getVerificationTokenByToken = async (token) => {
@@ -28,3 +28,16 @@ const getVerificationTokenByEmail = async (email) => {
     }
 };
 exports.getVerificationTokenByEmail = getVerificationTokenByEmail;
+// Buscar un token de verificación asociado a un email específico
+const getDeleteTokenByEmail = async (email) => {
+    try {
+        const deleteToken = await db_1.db.deleteToken.findFirst({
+            where: { email }
+        });
+        return deleteToken;
+    }
+    catch {
+        return null; // Retornar null si ocurre un error en la búsqueda
+    }
+};
+exports.getDeleteTokenByEmail = getDeleteTokenByEmail;

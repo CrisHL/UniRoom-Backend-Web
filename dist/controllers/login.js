@@ -20,6 +20,19 @@ const generateJWT = (userId) => {
     const token = jsonwebtoken_1.default.sign({ userId }, JWT_SECRET); // Sin expiración
     return token;
 };
+// Función para crear un nuevo JWT sin borrar los antiguos
+const createJwtToken = async (userId) => {
+    // Crea el nuevo token
+    const newToken = generateJWT(userId);
+    // Guarda el nuevo token en la base de datos
+    await db_1.db.jwtToken.create({
+        data: {
+            userId,
+            token: newToken,
+        },
+    });
+    return newToken;
+};
 // Controlador para manejar el inicio de sesión de usuarios
 exports.login = (0, express_async_handler_1.default)(async (req, res) => {
     const validateFields = schemas_1.LoginSchema.safeParse(req.body);
@@ -68,19 +81,13 @@ exports.login = (0, express_async_handler_1.default)(async (req, res) => {
                 await db_1.db.twoFactorConfirmation.delete({ where: { id: existingConfirmation.id } });
             }
             await db_1.db.twoFactorConfirmation.create({ data: { userId: existingUser.id } });
-            // Generar JWT
-            const jwtToken = generateJWT(existingUser.id);
-            await db_1.db.jwtToken.create({
-                data: {
-                    userId: existingUser.id,
-                    token: jwtToken,
-                },
-            });
+            // Generar nuevo JWT sin eliminar los antiguos
+            const jwtToken = await createJwtToken(existingUser.id);
+            await (0, mail_1.sendNewLogin)(existingUser.email);
             res.status(200).json({
                 success: true,
-                message: "Inicio de sesión exitoso con 2FA",
-                user: { id: existingUser.id, email: existingUser.email, name: existingUser.name },
-                jwtToken,
+                message: "Inicio de sesión exitoso, con twoFactor activado",
+                user: { email: existingUser.email, name: existingUser.name, image: existingUser.image, twoFactor: true, token: jwtToken },
             });
             return;
         }
@@ -92,17 +99,11 @@ exports.login = (0, express_async_handler_1.default)(async (req, res) => {
         }
     }
     // Si 2FA no está habilitado
-    const jwtToken = generateJWT(existingUser.id);
-    await db_1.db.jwtToken.create({
-        data: {
-            userId: existingUser.id,
-            token: jwtToken,
-        },
-    });
+    const jwtToken = await createJwtToken(existingUser.id);
+    await (0, mail_1.sendNewLogin)(existingUser.email);
     res.status(200).json({
         success: true,
-        message: "Inicio de sesión exitoso",
-        user: { email: existingUser.email, name: existingUser.name, image: existingUser.image },
-        jwtToken,
+        message: "Inicio de sesión exitoso, con twoFactor desactivado",
+        user: { email: existingUser.email, name: existingUser.name, image: existingUser.image, twoFactor: false, token: jwtToken },
     });
 });
