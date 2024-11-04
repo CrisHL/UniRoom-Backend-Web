@@ -57,7 +57,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   if (values.name && values.name !== dbUser.name) {
     try {
       // Llama a la API para actualizar el nombre en chats y mensajes
-      await axios.post("https://uniroom-backend-services.onrender.com", {
+      await axios.post("https://uniroom-backend-services.onrender.com/update-user", {
         userId: dbUser.id,
         newName: values.name,
       });
