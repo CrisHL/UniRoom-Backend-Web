@@ -107,7 +107,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       // Generar nuevo JWT sin eliminar los antiguos
       const jwtToken = await createJwtToken(existingUser.id);
 
-      await sendNewLogin(existingUser.email, existingUser.name as string);
+      const resEmail = sendNewLogin(existingUser.email, existingUser.name as string);
+
+      console.log("resemali:", resEmail);
 
       res.status(200).json({
         success: true,
@@ -125,7 +127,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   // Si 2FA no está habilitado
   const jwtToken = await createJwtToken(existingUser.id);
-  await sendNewLogin(existingUser.email, existingUser.name as string);
+  const resEmail = sendNewLogin(existingUser.email, existingUser.name as string);
+
+  console.log("resemali:", resEmail);
   res.status(200).json({
     success: true,
     message: "Inicio de sesión exitoso, con twoFactor desactivado",
