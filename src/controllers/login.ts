@@ -117,7 +117,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       return;
     } else {
       const twoFactorToken = await generateTwoFactorToken(existingUser.email);
-      await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
+      sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
 
       res.status(200).json({ twoFactor: true, message: "Código 2FA enviado al correo" });
       return;
@@ -126,7 +126,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   // Si 2FA no está habilitado
   const jwtToken = await createJwtToken(existingUser.id);
-  await sendNewLogin(existingUser.email, existingUser.name as string);
+  sendNewLogin(existingUser.email, existingUser.name as string);
   res.status(200).json({
     success: true,
     message: "Inicio de sesión exitoso, con twoFactor desactivado",
