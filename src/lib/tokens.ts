@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 
 import { db } from "../lib/db";
-import { getVerificationTokenByEmail } from "../data/verification-token";
+import { getDeleteTokenByEmail, getVerificationTokenByEmail } from "../data/verification-token";
 import { getPasswordResetTokenByEmail } from "../data/password-reset-token";
 import { getTwoFactorTokenByEmail } from "../data/two-factor-token";
 
@@ -86,4 +86,32 @@ export const generateVerificationToken = async (email: string) => {
   });
 
   return verificationToken;
+};
+
+
+export const generateDeleteToken = async (email: string) => {
+  const token = uuidv4();
+  const expires = new Date(new Date().getTime() + 3600 * 1000);
+
+  const existingToken = await getDeleteTokenByEmail(email);
+  
+  // Eliminar el token existente si lo hay
+  if (existingToken) {
+    await db.deleteToken.delete({
+      where: {
+        id: existingToken.id,
+      },
+    });
+  }
+
+  // Crear y devolver el nuevo token
+  const deleteToken = await db.deleteToken.create({
+    data: {
+      email,
+      token,
+      expires,
+    }
+  });
+
+  return deleteToken;
 };

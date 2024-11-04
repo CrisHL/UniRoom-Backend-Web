@@ -90,6 +90,7 @@ export const sendVerificationEmail = async (
   });
 };
 
+
 export const sendPasswordResetEmail = async (
   email: string,
   token: string,
@@ -163,5 +164,48 @@ export const sendNewLogin = async (email: string) => {
           </table>
         </body>
       </html>`
+  });
+};
+
+export const sendDeleteTokenEmail = async (
+  email: string,
+  token: string
+) => {
+  await resend.emails.send({
+    from: "UniRoom <no-reply@uniroom.app>",
+    to: email,
+    subject: "Token de eliminación de cuenta",
+    html: `
+      <!DOCTYPE html>
+      <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+        </head>
+        <body>
+          <table align="center" style="border-width:1px; border-style:solid; border-color:#eaeaea; border-radius:5px; margin-top:40px; max-width:465px; padding:20px;">
+            <tbody>
+              <tr>
+                <td>
+                  <img src="https://i.imgur.com/ruySKLQ.png" alt="Logo" height="130" style="display:block;margin:0 auto;">
+                  <h1 style="text-align:center; font-size:24px;">Token para la eliminacion de tu cuenta</h1>
+                  <p style="font-size:14px;">Hola, ¡sentimos que te vayas!</p>
+                  <p style="font-size:14px;">Tu token es:</p>
+                    <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="background:rgba(0,0,0,.05);border-radius:4px;margin:16px auto 14px;vertical-align:middle;width:280px">
+                   <tbody>
+                     <tr>
+                       <td>
+                        <p style="font-size:32px;line-height:40px;margin:0 auto;color:#000;display:inline-block;font-family:HelveticaNeue-Bold;font-weight:700;letter-spacing:6px;padding-bottom:8px;padding-top:8px;width:100%;text-align:center"><strong>${token}</strong></p>
+                       </td>
+                      </tr>
+                     </tbody>
+                   </table>
+                  <p style="font-size:14px;">Si no solicitaste esto, no te preocupes; nosotros nos encargamos de desalojar a cualquier intruso que se atreva a mudarse sin avisar. 🚪🔑</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `
   });
 };

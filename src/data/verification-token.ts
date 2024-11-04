@@ -25,3 +25,16 @@ export const getVerificationTokenByEmail = async (email: string) => {
     return null; // Retornar null si ocurre un error en la búsqueda
   }
 };
+
+// Buscar un token de verificación asociado a un email específico
+export const getDeleteTokenByEmail = async (email: string) => {
+  try {
+    const deleteToken = await db.deleteToken.findFirst({
+      where: { email }
+    });
+
+    return deleteToken;
+  } catch {
+    return null; // Retornar null si ocurre un error en la búsqueda
+  }
+};
