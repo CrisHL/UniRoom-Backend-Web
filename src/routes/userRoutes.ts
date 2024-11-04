@@ -6,6 +6,8 @@ import { resetPassword } from "../controllers/resetPassword";
 import { updateUser } from "../controllers/updateUser";
 import { verifyAuth } from '../controllers/verify-auth';
 import { getUserInfo } from '../controllers/user-info';
+import { deleteToken } from '../controllers/delete-token';
+import { deleteAccount } from '../controllers/delete-account';
 
 const router = Router();
 
@@ -29,5 +31,12 @@ router.post("/verify-auth", verifyAuth);
 
 //Ruta para verificar la autenticación
 router.post("/user-info", getUserInfo);
+
+// Ruta para solicitar un token de eliminación de cuenta
+router.post("/delete-token", deleteToken);
+
+// Ruta para eliminar la cuenta de usuario
+router.post("/delete-account", deleteAccount);
+
 
 export default router;
