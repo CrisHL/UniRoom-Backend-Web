@@ -129,3 +129,76 @@ export const sendPasswordResetEmail = async (
       </html>`
   });
 };
+
+export const sendNewLogin = async (name: string, email: string) => {
+  await resend.emails.send({
+    from: "UniRoom <no-reply@uniroom.app>",
+    to: email,
+    subject: "Detectamos un inicio de sesión reciente en tu cuenta 👀",
+    html: `
+      <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+          <html dir="ltr" lang="en">
+
+  <head>
+    <link rel="preload" as="image" href="https://i.imgur.com/uKIVq1K.png" />
+    <link rel="preload" as="image" href="https://i.imgur.com/qzOLE9P.png" />
+    <link rel="preload" as="image" href="https://react-email-demo-3kjjfblod-resend.vercel.app/static/yelp-footer.png" />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <meta name="x-apple-disable-message-reformatting" /><!--$-->
+  </head>
+
+  <body style="background-color:#fff;font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&quot;Helvetica Neue&quot;,sans-serif">
+    <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="max-width:37.5em">
+      <tbody>
+        <tr style="width:100%">
+          <td>
+            <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="padding:30px 20px">
+              <tbody>
+                <tr>
+                  <td><img src="https://i.imgur.com/QePbXJh.png" style="display:block;outline:none;border:none;text-decoration:none" /></td>
+                </tr>
+              </tbody>
+            </table>
+            <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="border:1px solid rgb(0,0,0, 0.1);border-radius:3px;overflow:hidden">
+              <tbody>
+                <tr>
+                  <td>
+                    <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation">
+                      <tbody style="width:100%">
+                        <tr style="width:100%"><img src="https://i.imgur.com/kBYoqdI.png" style="display:block;outline:none;border:none;text-decoration:none;max-width:100%" width="620" /></tr>
+                      </tbody>
+                    </table>
+                    <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="padding:20px;padding-bottom:0">
+                      <tbody style="width:100%">
+                        <tr style="width:100%">
+                          <td data-id="__react-email-column">
+                            <h1 style="font-size:32px;font-weight:bold;text-align:center">Hola <!-- -->${name}<!-- -->,</h1>
+                            <h2 style="font-size:26px;font-weight:bold;text-align:center">Hemos detectado un nuevo inicio de sesión en tu cuenta de UniRoom 🚨</h2>
+                            <p style="font-size:16px;line-height:24px;margin:16px 0">Si no fuiste tú, te recomendamos cambiar tu contraseña de inmediato por seguridad.</p>
+                            <p style="font-size:16px;line-height:24px;margin:16px 0">Puedes hacerlo desde la página web: <a href="https://uniroom.app" style="color:#007bff;text-decoration:none">uniroom.app</a></p>
+                            <p style="font-size:16px;line-height:24px;margin:16px 0;margin-top:-5px">Saludos, equipo de UniRoom</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="padding:45px 0 0 0">
+              <tbody>
+                <tr>
+                  <td><img src="https://react-email-demo-3kjjfblod-resend.vercel.app/static/yelp-footer.png" style="display:block;outline:none;border:none;text-decoration:none;max-width:100%" width="620" /></td>
+                </tr>
+              </tbody>
+            </table>
+            <p style="font-size:12px;line-height:24px;margin:16px 0;text-align:center;color:rgb(0,0,0, 0.7)">© 2024 | UniRoom, Tula de Allende, Hidalgo, 42836, México | uniroom.app</p>
+          </td>
+        </tr>
+      </tbody>
+    </table><!--/$-->
+  </body>
+            </html>
+    `
+  });
+};

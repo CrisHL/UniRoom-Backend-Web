@@ -1,6 +1,6 @@
 import * as z from "zod";
 import bcrypt from "bcryptjs";
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
 import { db } from "../lib/db";
@@ -10,6 +10,7 @@ import { getTwoFactorTokenByEmail } from "../data/two-factor-token";
 import { 
   sendVerificationEmail,
   sendTwoFactorTokenEmail,
+  sendNewLogin,
 } from "../lib/mail";
 import { 
   generateVerificationToken,
@@ -27,15 +28,12 @@ const generateJWT = (userId: string) => {
   return token;
 };
 
-// Función para eliminar tokens antiguos y crear uno nuevo
+// Función para crear un nuevo JWT sin borrar los antiguos
 const createJwtToken = async (userId: string) => {
-  // Elimina todos los tokens antiguos para evitar duplicados
-  await db.jwtToken.deleteMany({
-    where: { userId: userId },
-  });
-
-  // Luego crea el nuevo token
+  // Crea el nuevo token
   const newToken = generateJWT(userId);
+
+  // Guarda el nuevo token en la base de datos
   await db.jwtToken.create({
     data: {
       userId,
@@ -106,13 +104,15 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       }
       await db.twoFactorConfirmation.create({ data: { userId: existingUser.id } });
 
-      // Generar nuevo JWT y eliminar los antiguos
+      // Generar nuevo JWT sin eliminar los antiguos
       const jwtToken = await createJwtToken(existingUser.id);
+
+      await sendNewLogin(existingUser.email, existingUser.name as string);
 
       res.status(200).json({
         success: true,
         message: "Inicio de sesión exitoso, con twoFactor activado",
-        user: { email: existingUser.email, name: existingUser.name, image: existingUser.image, twoFactor: true ,  token: jwtToken },
+        user: { email: existingUser.email, name: existingUser.name, image: existingUser.image, twoFactor: true , token: jwtToken },
       });
       return;
     } else {
@@ -126,11 +126,10 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   // Si 2FA no está habilitado
   const jwtToken = await createJwtToken(existingUser.id);
-
+  await sendNewLogin(existingUser.email, existingUser.name as string);
   res.status(200).json({
     success: true,
     message: "Inicio de sesión exitoso, con twoFactor desactivado",
-    user: { email: existingUser.email, name: existingUser.name, image: existingUser.image, twoFactor: false,  token: jwtToken },
+    user: { email: existingUser.email, name: existingUser.name, image: existingUser.image, twoFactor: false, token: jwtToken },
   });
 });
-
