@@ -63,7 +63,7 @@ export const deleteAccount = asyncHandler(async (req: Request, res: Response) =>
     where: { id: user.id },
     data: {
       name: newName,
-      email: "delete@usuarioeliminado.com",
+      email: `delete${randomNum}@usuarioeliminado.com`,
       password: null,
       image: null,
       emailVerified: null,
