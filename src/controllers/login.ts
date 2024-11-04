@@ -106,9 +106,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
       // Generar nuevo JWT sin eliminar los antiguos
       const jwtToken = await createJwtToken(existingUser.id);
-
-      sendNewLogin(existingUser.email);
-
+      await sendNewLogin(existingUser.email);
       res.status(200).json({
         success: true,
         message: "Inicio de sesión exitoso, con twoFactor activado",
@@ -117,7 +115,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       return;
     } else {
       const twoFactorToken = await generateTwoFactorToken(existingUser.email);
-      sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
+      await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
       res.status(200).json({ twoFactor: true, message: "Código 2FA enviado al correo" });
       return;
     }
@@ -125,7 +123,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   // Si 2FA no está habilitado
   const jwtToken = await createJwtToken(existingUser.id);
-  sendNewLogin(existingUser.email);
+  await sendNewLogin(existingUser.email);
   res.status(200).json({
     success: true,
     message: "Inicio de sesión exitoso, con twoFactor desactivado",
