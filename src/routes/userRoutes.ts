@@ -8,6 +8,7 @@ import { verifyAuth } from '../controllers/verify-auth';
 import { getUserInfo } from '../controllers/user-info';
 import { deleteToken } from '../controllers/delete-token';
 import { deleteAccount } from '../controllers/delete-account';
+import { updateUserImage } from '../controllers/update-image';
 
 const router = Router();
 
@@ -37,6 +38,9 @@ router.post("/delete-token", deleteToken);
 
 // Ruta para eliminar la cuenta de usuario
 router.post("/delete-account", deleteAccount);
+
+router.post("/update-image", updateUserImage);
+
 
 
 export default router;
