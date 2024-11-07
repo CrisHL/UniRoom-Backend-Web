@@ -75,7 +75,6 @@ export const updateUserImage = [
       res.status(200).json({
         success: true,
         message: "Imagen actualizada correctamente",
-        user: updatedUser,
       });
 
     } catch (error) {
