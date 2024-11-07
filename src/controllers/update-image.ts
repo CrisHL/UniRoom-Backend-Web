@@ -66,12 +66,14 @@ export const updateUserImage = [
       console.log('Imagen subida a Cloudinary:', imageUrl);
 
       // Actualiza la URL de la imagen en la base de datos del usuario
-      await db.user.update({
+      const resUpdate = await db.user.update({
         where: { id: dbUser.id },
         data: {
           image: imageUrl,
         },
       });
+
+      console.log('Usuario actualizado:', resUpdate); 
 
       // Devuelve una respuesta de éxito con el usuario actualizado
       res.status(200).json({
